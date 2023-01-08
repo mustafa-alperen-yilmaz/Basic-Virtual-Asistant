@@ -7,10 +7,10 @@
 #pip install lxml
 import selenium
 import webbrowser
-from pywhatkit.mainfunctions import search
+import pywhatkit
+from pywhatkit import search
 import speech_recognition as sr
 import pyttsx3
-import pywhatkit
 from datetime import datetime
 import requests
 from lxml import html
@@ -39,8 +39,8 @@ def takeCommands():
             voice = listener.listen(source)
             command=''
             try:
-#                command = listener.recognize_google(voice)
-                command = listener.recognize_google(voice, language='tr-TR')# if you want TR launguage
+                command = listener.recognize_google(voice)
+                #command = listener.recognize_google(voice, language='tr-TR')# if you want TR launguage
                 print(command)
             except sr.UnknownValueError:
                 print("i didn't get that")
@@ -83,25 +83,6 @@ def runAlexa():
         search = command.replace('search','')
         url = 'https://google.com/search?q=' + search
         webbrowser.get().open(url)
-    elif 'enter' in command:
-        enter = command.replace('enter','')
-        r = requests.get()
-        tree = html.fromstring(r.content)
-        enter = tree.find_element_by_xpath('/html/body/div[7]/div[2]/div[9]/div[2]/div/div[2]/div[2]/div/div/div[1]/div/div/div/div[1]/a')
-        enter.click()
-    elif 'weather' in command:
-        translator = Translator() 
-        place = command.replace('weather in ','').lower()
-        url = "https://www.hurriyet.com.tr/hava-durumu/" + place
-        r = requests.get(url)
-        tree = html.fromstring(r.content)
-        degree = tree.xpath('/html/body/div[11]/div[3]/div/div[2]/div/div[2]/p[1]')
-        condition = tree.xpath('/html/body/div[11]/div[3]/div/div[2]/div/div[3]/p[2]')
-        can = condition[0].text
-        conditionENG = translator.translate(text=can , src='tr')
-        say = " today weather is {} celsius and looks {} ".format(degree[0].text , conditionENG.text)
-        print(say)
-        talk(say)
     elif 'day' in command:
         day = datetime.today().weekday()+1
         days = {1: 'Monday' , 2: 'Tuesday' , 3 :'Wednesday' , 4: 'Thursday' , 5: 'Friday' , 6:'Saturday', 7: 'Sunday'}
@@ -117,10 +98,6 @@ def runAlexa():
                 weekday ="have a good weekday , I wish you good work"
                 print(weekday)
                 talk(weekday)
-    elif 'prime' in command:
-        prime = "twitch prime just 8 turkish liras subscribe the Yaz1limmuh"
-        print(prime)
-        talk(prime)
     elif 'dollar' in command:
         r = requests.get("https://uzmanpara.milliyet.com.tr/canli-borsa/")
         tree = html.fromstring(r.content)
@@ -146,7 +123,7 @@ def runAlexa():
         translate = command.replace('translate','')
         translator = Translator()
         dedectedTranslate = translator.detect(translate)
-        translation = translator.translate(text=translate , src=dedectedTranslate.lang)
+        translation = translator.translate(text=translate , dest='tr')
         print(translation.text)
         talk(translation.text)
 while True:
